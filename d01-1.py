@@ -1,4 +1,5 @@
 #12/1/2018
+#This puzzle sums a list of numbers
 
 #Open the input file and read the data
 input = open("d01-1input.txt")

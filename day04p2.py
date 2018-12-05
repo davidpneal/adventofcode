@@ -1,6 +1,5 @@
 #12/4/2018
-#This script analyzes sleep logs to identify which 'guard' sleeps the most then
-# identifies which minute in the hour they are asleep the most frequently
+#This script analyzes sleep logs to identify which 'guard' sleeps the most for any given minute
 
 from datetime import datetime
 from collections import defaultdict
@@ -48,40 +47,41 @@ for log in chrono:
 	sleepdict[currguard].append(waketime)
 	
 	
-#Count up the sleep time for each guard
-topsleeper = (-1,0)
+#Check each guard to see how much they sleep for each minute, save the largest value
+
+#Data: guard, minute, count
+topsleeper = (0,0,0)
+
 for guard in sleepdict:
-	sleeptime = 0
+	breakdown = defaultdict(int)
+	
+	#Count by twos up to the length of the list associated with guard
 	for n in range(0,len(sleepdict[guard]),2):
-		sleeptime += sleepdict[guard][n+1] - sleepdict[guard][n]
+		for i in range(sleepdict[guard][n],sleepdict[guard][n+1]):
+			breakdown[i] += 1
+	
+	#Find the key with the largest value~ max(iterable, key) - key describes how to compare elements
+	#The lambda <item>: return <a result of operation with item> ~ get the value for the key
+	minute = max(breakdown, key=lambda k: breakdown[k])
+	count = max(breakdown.values())
 	
 	#If the currently analyzed guard slept more than the old record holder, update topsleeper
-	if(sleeptime > topsleeper[1]):
-		topsleeper = (guard, sleeptime)
-	
-
-#Tally how much the guard was sleeping for each minute
-guard = topsleeper[0]
-breakdown = defaultdict(int)
-
-#Same code as above, count by twos up to the length of the list associated with guard
-for n in range(0,len(sleepdict[guard]),2):
-	for i in range(sleepdict[guard][n],sleepdict[guard][n+1]):
-		breakdown[i] += 1
-
+	if(count >= topsleeper[2]):
+		topsleeper = (guard, minute, count)	
 		
-#Find the key with the largest value~ max(iterable, key) - key describes how to compare elements
-#The lambda <item>: return <a result of operation with item> ~ get the value for the key
-mostsleep = max(breakdown, key=lambda k: breakdown[k])
-
-print("Guard x Minute:",guard * mostsleep)
-
-
-
+	
+print("Guard:", topsleeper[0])
+print("Count:", topsleeper[2])
+print("Minute:", topsleeper[1])
+print("Guard x Minute:",topsleeper[0] * topsleeper[1])
+	
+	
+	
+	
 
 ''' MISC
 
-Correct answer: 39422
+Correct answer: 65474
 
 
 
